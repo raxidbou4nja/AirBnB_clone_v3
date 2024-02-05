@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-""" holds class User"""
+""" Holds class User"""
+import hashlib
 import models
 from models.base_model import BaseModel, Base
 from os import getenv
@@ -27,3 +28,16 @@ class User(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
+
+    def save(self):
+        """Save the User instance."""
+        if not self.id:
+            self.password = hashlib.md5(self.password.encode()).hexdigest()
+        super().save()
+
+    def to_dict(self, save_to_disk=False):
+        """Convert instance attributes to dictionary for JSON serialization."""
+        new_dict = super().to_dict(save_to_disk)
+        if not save_to_disk:
+            new_dict.pop('password', None)
+        return new_dict
